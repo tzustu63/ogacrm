@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ogacrm.harvestwize.com/sitemap.xml
+
