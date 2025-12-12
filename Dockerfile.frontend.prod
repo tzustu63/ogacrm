@@ -8,8 +8,9 @@ COPY frontend/package*.json ./
 COPY frontend/tsconfig.json ./
 COPY frontend/tsconfig.node.json ./
 
-# 安裝依賴
-RUN npm ci
+# 安裝依賴（使用緩存掛載加速）
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
 
 # 複製前端源代碼
 COPY frontend/ ./frontend/

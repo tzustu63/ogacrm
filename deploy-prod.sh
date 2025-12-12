@@ -63,9 +63,13 @@ chmod 755 logs backups
 echo "🛑 停止現有服務..."
 docker-compose -f docker-compose.prod.yml down 2>/dev/null || true
 
-# 構建並啟動服務
-echo "🔨 正在構建 Docker 映像..."
-docker-compose -f docker-compose.prod.yml build --no-cache
+# 啟用 Docker BuildKit（加快構建速度）
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+# 構建並啟動服務（使用緩存加速）
+echo "🔨 正在構建 Docker 映像（使用緩存加速）..."
+docker-compose -f docker-compose.prod.yml build
 
 echo "🚀 正在啟動服務..."
 docker-compose -f docker-compose.prod.yml up -d
