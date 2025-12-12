@@ -4,8 +4,6 @@ import authReducer from './slices/authSlice'
 import schoolsReducer from './slices/schoolsSlice'
 import contactsReducer from './slices/contactsSlice'
 import interactionsReducer from './slices/interactionsSlice'
-import partnershipsReducer from './slices/partnershipsSlice'
-import searchReducer from './slices/searchSlice'
 
 export const store = configureStore({
   reducer: {
@@ -13,8 +11,6 @@ export const store = configureStore({
     schools: schoolsReducer,
     contacts: contactsReducer,
     interactions: interactionsReducer,
-    partnerships: partnershipsReducer,
-    search: searchReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

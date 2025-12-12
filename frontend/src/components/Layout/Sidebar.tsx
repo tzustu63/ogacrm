@@ -16,8 +16,6 @@ import {
   School,
   People,
   Chat,
-  Handshake,
-  Search,
 } from '@mui/icons-material'
 
 const drawerWidth = 240
@@ -33,8 +31,6 @@ const navigationItems: NavigationItem[] = [
   { text: '學校管理', icon: <School />, path: '/schools' },
   { text: '聯絡人', icon: <People />, path: '/contacts' },
   { text: '互動記錄', icon: <Chat />, path: '/interactions' },
-  { text: '合作管理', icon: <Handshake />, path: '/partnerships' },
-  { text: '搜尋篩選', icon: <Search />, path: '/search' },
 ]
 
 const Sidebar: React.FC = () => {
