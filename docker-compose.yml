@@ -1,0 +1,75 @@
+
+services:
+  # PostgreSQL 資料庫
+  db:
+    image: postgres:16-alpine
+    container_name: tcucrm-db
+    environment:
+      POSTGRES_DB: recruitment_crm
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - tcucrm_db_data:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"  # 使用 5434 避免與本機 PostgreSQL 衝突
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - tcucrm-network
+
+  # 後端 API 服務
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tcucrm-backend
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DOCKER_ENV: "true"
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: recruitment_crm
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-change-in-production-12345}
+      JWT_EXPIRES_IN: 24h
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+    ports:
+      - "5001:5000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - tcucrm-network
+    restart: unless-stopped
+
+  # 前端服務
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: tcucrm-frontend
+    ports:
+      - "8888:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - tcucrm-network
+    restart: unless-stopped
+
+networks:
+  tcucrm-network:
+    driver: bridge
+    name: tcucrm-network
+
+volumes:
+  tcucrm_db_data:
+    name: tcucrm_db_data
+
