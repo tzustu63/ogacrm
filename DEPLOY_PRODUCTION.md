@@ -296,7 +296,11 @@ docker-compose -f docker-compose.prod.yml exec frontend ping backend
 
 2. 檢查後端健康狀態：
 ```bash
-docker-compose -f docker-compose.prod.yml exec backend wget -qO- http://localhost:5000/health
+# 從容器內部檢查（使用容器內端口）
+docker-compose -f docker-compose.prod.yml exec backend node -e "require('http').get('http://localhost:5000/health', (r) => { let d=''; r.on('data', c=>d+=c); r.on('end', ()=>console.log(d)); })"
+
+# 從主機檢查（使用主機端口）
+curl http://localhost:5006/health
 ```
 
 ## 安全建議
