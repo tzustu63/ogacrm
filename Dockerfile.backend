@@ -13,6 +13,7 @@ RUN npm ci
 # 複製源代碼
 COPY src/ ./src/
 COPY scripts/ ./scripts/
+COPY database/ ./database/
 
 # 建置應用
 RUN npm run build
