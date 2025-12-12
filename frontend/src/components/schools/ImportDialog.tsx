@@ -181,8 +181,9 @@ const ImportDialog: React.FC<ImportDialogProps> = ({
             <input
               ref={(el) => {
                 // #region agent log
+                console.log('[DEBUG] Input ref attached:', { exists: !!el, tagName: el?.tagName, type: el?.type, isConnected: el?.isConnected });
                 if (el) {
-                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:inputRef',message:'Input ref attached',data:{tagName:el.tagName,type:el.type,isConnected:el.isConnected,displayStyle:el.style.display},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:inputRef',message:'Input ref attached',data:{tagName:el.tagName,type:el.type,isConnected:el.isConnected,displayStyle:el.style.display},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
                 }
                 // #endregion
                 (fileInputRef as React.MutableRefObject<HTMLInputElement | null>).current = el;
@@ -190,31 +191,48 @@ const ImportDialog: React.FC<ImportDialogProps> = ({
               type="file"
               accept=".xlsx,.xls"
               onChange={handleFileSelect}
-              style={{ display: 'none' }}
+              style={{ 
+                position: 'absolute',
+                width: 0,
+                height: 0,
+                opacity: 0,
+                overflow: 'hidden',
+                zIndex: -1
+              }}
             />
             <Button
               variant="outlined"
-              onClick={() => {
+              onClick={(e) => {
                 // #region agent log
-                fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'Button clicked, before fileInputRef check',data:{refExists:!!fileInputRef.current,refValue:fileInputRef.current?.tagName,refType:fileInputRef.current?.type,isInDOM:fileInputRef.current?.isConnected,displayStyle:fileInputRef.current?.style.display},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                console.log('[DEBUG] Button clicked, fileInputRef:', { exists: !!fileInputRef.current, ref: fileInputRef.current });
+                fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'Button clicked, before fileInputRef check',data:{refExists:!!fileInputRef.current,refValue:fileInputRef.current?.tagName,refType:fileInputRef.current?.type,isInDOM:fileInputRef.current?.isConnected,displayStyle:fileInputRef.current?.style.display},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
                 // #endregion
+                e.preventDefault();
+                e.stopPropagation();
                 if (fileInputRef.current) {
                   // #region agent log
-                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'fileInputRef exists, calling click()',data:{refExists:true,refType:fileInputRef.current.type,isInDOM:fileInputRef.current.isConnected},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                  console.log('[DEBUG] Calling click() on input element');
+                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'fileInputRef exists, calling click()',data:{refExists:true,refType:fileInputRef.current.type,isInDOM:fileInputRef.current.isConnected},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'B'})}).catch(()=>{});
                   // #endregion
                   try {
-                    fileInputRef.current.click();
-                    // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'click() called successfully',data:{refExists:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                    // #endregion
+                    // Use setTimeout to ensure it's in the next event loop tick
+                    setTimeout(() => {
+                      fileInputRef.current?.click();
+                      // #region agent log
+                      console.log('[DEBUG] click() called');
+                      fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'click() called successfully',data:{refExists:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'B'})}).catch(()=>{});
+                      // #endregion
+                    }, 0);
                   } catch (err) {
                     // #region agent log
-                    fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'Error calling click()',data:{error:err instanceof Error ? err.message : String(err)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+                    console.error('[DEBUG] Error calling click():', err);
+                    fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'Error calling click()',data:{error:err instanceof Error ? err.message : String(err)},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'C'})}).catch(()=>{});
                     // #endregion
                   }
                 } else {
                   // #region agent log
-                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'fileInputRef is null',data:{refExists:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                  console.warn('[DEBUG] fileInputRef is null!');
+                  fetch('http://127.0.0.1:7243/ingest/8a078dc6-3c6c-45f7-aba0-6766181d477f',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ImportDialog.tsx:onClick',message:'fileInputRef is null',data:{refExists:false},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'A'})}).catch(()=>{});
                   // #endregion
                 }
               }}
