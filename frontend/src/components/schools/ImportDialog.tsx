@@ -44,15 +44,25 @@ const ImportDialog: React.FC<ImportDialogProps> = ({
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
     if (selectedFile) {
-      // Validate file type
+      // Validate file by extension (more reliable than MIME type)
+      const fileName = selectedFile.name.toLowerCase()
+      const validExtensions = ['.xlsx', '.xls']
+      const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext))
+      
+      // Also check MIME type as secondary validation
       const validTypes = [
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.ms-excel'
+        'application/vnd.ms-excel',
+        'application/vnd.ms-excel.sheet.macroEnabled.12',
+        'application/octet-stream' // Some systems may use this
       ]
-      if (!validTypes.includes(selectedFile.type)) {
+      const hasValidType = validTypes.includes(selectedFile.type) || selectedFile.type === ''
+      
+      if (!hasValidExtension && !hasValidType) {
         setError('請選擇 Excel 檔案 (.xlsx 或 .xls)')
         return
       }
+      
       setFile(selectedFile)
       setError(null)
       setImportResult(null)
