@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 資料庫
+  db:
+    image: postgres:16-alpine
+    container_name: tcucrm-db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-recruitment_crm}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - tcucrm_db_data:/var/lib/postgresql/data
+      - ./backups:/backups  # 備份目錄
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - tcucrm-network
+    restart: always
+    # 資源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # 後端 API 服務
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: tcucrm-backend
+    environment:
+      NODE_ENV: production
+      DOCKER_ENV: "true"
+      PORT: 5000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-recruitment_crm}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-24h}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ./backups:/app/backups
+    networks:
+      - tcucrm-network
+    restart: always
+    # 資源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 前端服務
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.prod
+    container_name: tcucrm-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - tcucrm-network
+    restart: always
+    # 資源限制
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  tcucrm-network:
+    driver: bridge
+    name: tcucrm-network
+
+volumes:
+  tcucrm_db_data:
+    name: tcucrm_db_data
+
