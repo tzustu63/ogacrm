@@ -25,6 +25,10 @@ FROM nginx:alpine
 # 複製建置結果到 nginx
 COPY --from=builder /app/frontend/dist /usr/share/nginx/html
 
+# 複製公開文件（robots.txt, security.txt 等）
+COPY --from=builder /app/frontend/public/robots.txt /usr/share/nginx/html/robots.txt 2>/dev/null || true
+COPY --from=builder /app/frontend/public/.well-known /usr/share/nginx/html/.well-known 2>/dev/null || true
+
 # 複製生產環境 nginx 配置
 COPY docker/nginx.prod.conf /etc/nginx/conf.d/default.conf
 
