@@ -13,13 +13,21 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024 // 10MB limit
   },
   fileFilter: (req, file, cb) => {
+    // Validate by file extension (more reliable than MIME type)
+    const fileName = file.originalname.toLowerCase();
+    const validExtensions = ['.xlsx', '.xls'];
+    const hasValidExtension = validExtensions.some(ext => fileName.endsWith(ext));
+    
+    // Also check MIME type as secondary validation
     const allowedMimes = [
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
       'application/vnd.ms-excel', // .xls
-      'application/vnd.ms-excel.sheet.macroEnabled.12' // .xlsm
+      'application/vnd.ms-excel.sheet.macroEnabled.12', // .xlsm
+      'application/octet-stream' // Some systems may use this
     ];
+    const hasValidType = allowedMimes.includes(file.mimetype) || file.mimetype === '';
     
-    if (allowedMimes.includes(file.mimetype)) {
+    if (hasValidExtension || hasValidType) {
       cb(null, true);
     } else {
       cb(new Error('只支援 Excel 檔案格式 (.xlsx, .xls)'));
