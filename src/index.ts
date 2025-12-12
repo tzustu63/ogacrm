@@ -30,6 +30,7 @@ import { createBackupRoutes } from './routes/backupRoutes';
 import { createExportRoutes } from './routes/exportRoutes';
 import { createImportRoutes } from './routes/importRoutes';
 import { partnershipRoutes, initializePartnershipServices } from './routes/partnershipRoutes';
+import { createDashboardRoutes } from './routes/dashboardRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -101,6 +102,7 @@ function initializeRoutes() {
     createBackupRoutes(getPool())
   );
   app.use('/api/partnerships', authMiddleware, injectAuthService(authService), partnershipRoutes);
+  app.use('/api/dashboard', createDashboardRoutes(getPool()));
   app.use('/api/export', createExportRoutes(getPool()));
   app.use('/api/import', createImportRoutes(getPool()));
 }
