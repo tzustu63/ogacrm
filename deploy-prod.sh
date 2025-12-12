@@ -113,3 +113,7 @@ echo "   2. 建議使用 Nginx 反向代理配置 HTTPS"
 echo "   3. 定期備份資料庫: docker-compose -f docker-compose.prod.yml exec db pg_dump -U postgres recruitment_crm > backups/backup_\$(date +%Y%m%d_%H%M%S).sql"
 echo ""
 
+
+
+
+
