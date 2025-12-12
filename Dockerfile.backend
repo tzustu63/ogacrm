@@ -30,6 +30,9 @@ RUN npm ci --only=production && npm cache clean --force
 # 複製建置結果
 COPY --from=builder /app/dist ./dist
 
+# 複製 database 目錄（遷移腳本需要）
+COPY --from=builder /app/database ./database
+
 # 創建日誌目錄並設置權限
 RUN mkdir -p logs && chmod 777 logs
 
